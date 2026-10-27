@@ -94,12 +94,10 @@ export default function ConversationPanel({
   const [prevAttackResultId, setPrevAttackResultId] = useState<string | null>(attackResultId ?? null)
   if (attackResultId !== prevAttackResultId) {
     setPrevAttackResultId(attackResultId ?? null)
-    if (!attackResultId) {
-      setConversations([])
-      setMainConversationId(null)
-      setError(null)
-      setIsLoading(false)
-    }
+    setConversations([])
+    setMainConversationId(null)
+    setError(null)
+    setIsLoading(!!attackResultId)
   }
 
   const handleRetry = useCallback(() => {
