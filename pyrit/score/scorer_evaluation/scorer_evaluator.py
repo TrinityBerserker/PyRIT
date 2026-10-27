@@ -862,6 +862,7 @@ class ObjectiveScorerEvaluator(ScorerEvaluator):
         accuracy = (true_positive + true_negative) / gold_scores.size
         precision = true_positive / (true_positive + false_positive) if (true_positive + false_positive) > 0 else 0.0
         recall = true_positive / (true_positive + false_negative) if (true_positive + false_negative) > 0 else 0.0
+        specificity = true_negative / (true_negative + false_positive) if (true_negative + false_positive) > 0 else 0.0
         f1_score = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
 
         num_responses = all_human_scores.shape[1]
@@ -874,6 +875,7 @@ class ObjectiveScorerEvaluator(ScorerEvaluator):
             accuracy_standard_error=np.sqrt(accuracy * (1 - accuracy) / gold_scores.size),
             precision=precision,
             recall=recall,
+            specificity=specificity,
             f1_score=f1_score,
             num_scorer_trials=num_scorer_trials,
             dataset_name=dataset_name,

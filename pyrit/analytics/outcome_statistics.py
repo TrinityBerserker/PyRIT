@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from collections import Counter
+import math
 from typing import TYPE_CHECKING
 
 from pyrit.models import AttackOutcome, OutcomeStatistics
@@ -15,6 +16,17 @@ if TYPE_CHECKING:
 
     from pyrit.models import AttackStats
 
+
+
+def _calculate_confidence_interval(successes: int, total: int, z: float = 1.96) -> tuple[float | None, float | None]:
+    """Calculate the Wilson score interval for a proportion."""
+    if total == 0:
+        return None, None
+    p = successes / total
+    denominator = 1 + z**2 / total
+    center = (p + z**2 / (2 * total)) / denominator
+    margin = z * math.sqrt((p * (1 - p) / total) + (z**2 / (4 * total**2))) / denominator
+    return max(0.0, center - margin), min(1.0, center + margin)
 
 def compute_outcome_statistics(counts: Mapping[str, int] | Mapping[AttackOutcome, int]) -> OutcomeStatistics:
     """
@@ -42,6 +54,7 @@ def compute_outcome_statistics(counts: Mapping[str, int] | Mapping[AttackOutcome
     errors = values.get(AttackOutcome.ERROR, 0)
     decided = successes + failures
     total = decided + undetermined + errors
+    ci_lower, ci_upper = _calculate_confidence_interval(successes, decided)
     return OutcomeStatistics(
         successes=successes,
         failures=failures,
@@ -50,6 +63,8 @@ def compute_outcome_statistics(counts: Mapping[str, int] | Mapping[AttackOutcome
         total_decided=decided,
         total_results=total,
         success_rate=_rate(successes=successes, total=decided),
+        confidence_interval_lower=ci_lower,
+        confidence_interval_upper=ci_upper,
         success_rate_all=_rate(successes=successes, total=total),
         decided_share=_rate(successes=decided, total=total),
         outcome_shares={

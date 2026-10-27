@@ -165,6 +165,9 @@ class AttackAnalyticsStatistics(AttackStats):
 
 
 # Preserve the existing class/constructor identity while sharing it beyond attack reports.
+    confidence_interval_lower: float | None = None
+    confidence_interval_upper: float | None = None
+
 OutcomeStatistics = AttackAnalyticsStatistics
 
 
